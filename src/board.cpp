@@ -7,31 +7,31 @@
 std::array<std::string,18> board::getDisplay() const {
 
     return{
-        "It is player "+std::to_string(positions[32]),
-    " /===+===+===\\",
-    std::string(" |")+(positions[4]?"{0}":" * ")+"|"+(positions[5]?"{0}":(positions[21]?"{1}":"   "))+"|"+(positions[20]?"{1}":" * ")+"|",
-    " +===+===+===+",
-    std::string(" |")+(positions[3]?"{0}":"   ")+"|"+(positions[6]?"{0}":(positions[22]?"{1}":"   "))+"|"+(positions[19]?"{1}":"   ")+"|",
-    " +===+===+===+",
-    std::string(" |")+(positions[2]?"{0}":"   ")+"|"+(positions[7]?"{0}":(positions[23]?"{1}":"   "))+"|"+(positions[18]?"{1}":"   ")+"|",
-    " +===+===+===+",
-    std::string(" |")+(positions[1]?"{0}":"   ")+"|"+(positions[8]?"{0}":(positions[24]?"{1}":" * "))+"|"+(positions[17]?"{1}":"   ")+"|",
-    " \\===+===+===/",
+        " It is player "+std::to_string(positions[32]),
+    " /===+===+===\\ ",
+    std::string(" |")+(positions[4]?"{0}":" * ")+"|"+(positions[5]?"{0}":(positions[21]?"{1}":"   "))+"|"+(positions[20]?"{1}":" * ")+"| ",
+    " +===+===+===+ ",
+    std::string(" |")+(positions[3]?"{0}":"   ")+"|"+(positions[6]?"{0}":(positions[22]?"{1}":"   "))+"|"+(positions[19]?"{1}":"   ")+"| ",
+    " +===+===+===+ ",
+    std::string(" |")+(positions[2]?"{0}":"   ")+"|"+(positions[7]?"{0}":(positions[23]?"{1}":"   "))+"|"+(positions[18]?"{1}":"   ")+"| ",
+    " +===+===+===+ ",
+    std::string(" |")+(positions[1]?"{0}":"   ")+"|"+(positions[8]?"{0}":(positions[24]?"{1}":" * "))+"|"+(positions[17]?"{1}":"   ")+"| ",
+    " \\===+===+===/ ",
     std::string("{0}x")+std::to_string(static_cast<int>(positions[0]))+"|"+(positions[9]?"{0}":(positions[25]?"{1}":"   "))+"|{1}x"+std::to_string(static_cast<int>(positions[16]))+"",
-    "     +===+    ",
+    "     +===+     ",
     std::string("{0}x")+std::to_string(static_cast<int>(positions[15]))+"|"+(positions[10]?"{0}":(positions[26]?"{1}":"   "))+"|{1}x"+std::to_string(static_cast<int>(positions[31]))+"",
-    " /===+===+===\\",
-    std::string(" |")+(positions[14]?"{0}":" * ")+"|"+(positions[11]?"{0}":(positions[27]?"{1}":"   "))+"|"+(positions[30]?"{1}":" * ")+"|",
-    " +===+===+===+",
-    std::string(" |")+(positions[13]?"{0}":"   ")+"|"+(positions[12]?"{0}":(positions[28]?"{1}":"   "))+"|"+(positions[29]?"{1}":"   ")+"|",
-    " \\===+===+===/"
+    " /===+===+===\\ ",
+    std::string(" |")+(positions[14]?"{0}":" * ")+"|"+(positions[11]?"{0}":(positions[27]?"{1}":"   "))+"|"+(positions[30]?"{1}":" * ")+"| ",
+    " +===+===+===+ ",
+    std::string(" |")+(positions[13]?"{0}":"   ")+"|"+(positions[12]?"{0}":(positions[28]?"{1}":"   "))+"|"+(positions[29]?"{1}":"   ")+"| ",
+    " \\===+===+===/ "
         };
 }
-int board::getFutureGames(std::array<board,7> futureGames, int roll) const {
+int board::getFutureGames(std::array<board,7>& futureGames, int roll) const {
     if (roll==0)
         return 0;
     //Literally defining this one thing speeds up the code a lot (144 ns to 84 ns)
-    bool player0turn = positions[32];
+    bool player0turn = positions[32]==0;
 
     int numberStates=0;
     //It is some player's turn, loop through all the places we can move roll from

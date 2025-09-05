@@ -36,7 +36,7 @@ struct board {
     ///Get strings we can print to the terminal to display the current state
     [[nodiscard]] std::array<std::string,18> getDisplay() const;
 
-    [[nodiscard]] int getFutureGames(std::array<board,7> futureGames, int roll) const;
+    [[nodiscard]] int getFutureGames(std::array<board,7>& futureGames, int roll) const;
 };
 
 #endif //ROYALGAMEOFURRELOADED_BOARD_H
