@@ -14,9 +14,11 @@
 ///It is essentially just a 528 bit array with a few utillity methods attached to it
 struct board {
 ///I am as distraught as you that I couldn't fit it in a nice round 512 bits, but any compression makes the game slower, not faster
-    std::array<int16_t,33> positions = {};
+    std::array<int16_t,33> positions =
+    {7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-    [[nodiscard]] inline int whoseTurn() const {return positions[33];}
+    [[nodiscard]] inline int whoseTurn() const {return positions[32];}
 
     ///Has player 0 already won?
     [[nodiscard]] inline bool player0win() const {
@@ -38,9 +40,9 @@ struct board {
     }
 
     ///Get strings we can print to the terminal to display the current state
-    [[nodiscard]] std::array<std::string,18> getDisplay() const;
+    [[nodiscard]] std::array<std::string,18> getDisplay(std::array<int,32>& moveTo) const;
 
-    [[nodiscard]] int getFutureGames(std::array<board,7>& futureGames, int roll) const;
+    [[nodiscard]] int getFutureGames(std::array<board,7>& futureGames, int roll,std::array<int,32>& moveTo) const;
 };
 
 #endif //ROYALGAMEOFURRELOADED_BOARD_H

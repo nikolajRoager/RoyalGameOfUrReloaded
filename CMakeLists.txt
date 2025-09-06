@@ -30,4 +30,5 @@ endif()
 include_directories(include)
 
 add_executable(RoyalGameOfUrReloaded src/main.cpp src/board.cpp
-        src/player.cpp)
+        src/player.cpp
+        src/playGame.cpp)

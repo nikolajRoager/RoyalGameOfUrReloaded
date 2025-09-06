@@ -10,16 +10,22 @@
 
 class player {
     private:
-    bool isBot=false;
+    bool isBot;
     int playerNumber;
+    std::array<int16_t, 33*33> brain;
 
     public:
-    player(int _playerNumber ,bool _isBot):playerNumber(_playerNumber),isBot(_isBot){}
+
+    [[nodiscard]] int getValue(const board& board) const;
+
+    player(int _playerNumber ,bool _isBot);
+
+    [[nodiscard]] bool isHuman() const { return !isBot; }
 
     ///Have the player choose which option they like best
     ///@param moves The list of possible moves (only the first numberMoves are considered)
     ///@param numberMoves how many moves there actually are
-    int ChooseMove (int numberMoves, std::array<board,7>& moves) const noexcept;
+    [[nodiscard]] int ChooseMove (int numberMoves, const std::array<board,7>& moves, bool useGraphics) const noexcept;
 };
 
 #endif //ROYALGAMEOFURRELOADED_PLAYER_H
