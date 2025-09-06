@@ -11,18 +11,22 @@
 #include <vector>
 
 ///The board of the game as a struct, I think it is easier if everyone has access to the data
+///It is essentially just a 528 bit array with a few utillity methods attached to it
 struct board {
+///I am as distraught as you that I couldn't fit it in a nice round 512 bits, but any compression makes the game slower, not faster
     std::array<int16_t,33> positions = {};
 
+    [[nodiscard]] inline int whoseTurn() const {return positions[33];}
+
     ///Has player 0 already won?
-    inline bool player0win() const {
+    [[nodiscard]] inline bool player0win() const {
         return positions[15]==7;
     }
     ///Has player 1 already won?
-    inline bool player1win() const {
+    [[nodiscard]] inline bool player1win() const {
         return positions[31]==7;
     }
-    inline bool gameOver() const {
+    [[nodiscard]] inline bool gameOver() const {
         return player0win() || player1win();
     }
 

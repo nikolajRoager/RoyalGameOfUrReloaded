@@ -4,6 +4,8 @@
 
 #include "board.h"
 
+#include <iostream>
+
 std::array<std::string,18> board::getDisplay() const {
 
     return{
@@ -28,40 +30,49 @@ std::array<std::string,18> board::getDisplay() const {
         };
 }
 int board::getFutureGames(std::array<board,7>& futureGames, int roll) const {
-    if (roll==0)
-        return 0;
+    int numberStates=0;
     //Literally defining this one thing speeds up the code a lot (144 ns to 84 ns)
     bool player0turn = positions[32]==0;
+    if (roll!=0) {
+        //It is some player's turn, loop through all the places we can move roll from
+        for (int from = 0; from < 16-roll; ++from) {
+            int fromId=from+(player0turn?0:16);
+            //We have something which can move from here
+            if (positions[fromId]>0) {
+                //We can move there if we ain't there, and the enemy isn't on 8
+                int to = from+roll;
+                int toId=to+(player0turn?0:16);
+                if (to==15 || positions[toId]==0) {
+                    if (to!=8 || positions[(player0turn?16:0)+8]==0) {
+                        //Ok, we CAN move there
+                        futureGames[numberStates].positions=positions;
+                        --futureGames[numberStates].positions[fromId];
+                        ++futureGames[numberStates].positions[toId];
 
-    int numberStates=0;
-    //It is some player's turn, loop through all the places we can move roll from
-    for (int from = 0; from < 16-roll; ++from) {
-        int fromId=from+(player0turn?0:16);
-        //We have something which can move from here
-        if (positions[fromId]>0) {
-            //We can move there if we ain't there, and the enemy isn't on 8
-            int to = from+roll;
-            int toId=to+(player0turn?0:16);
-            if (to==15 || positions[toId]==0) {
-                if (to!=8 || positions[(player0turn?16:0)+8]==0) {
-                    //Ok, we CAN move there
-                    futureGames[numberStates].positions=positions;
-                    --futureGames[numberStates].positions[fromId];
-                    ++futureGames[numberStates].positions[toId];
-
-                    if (to!=4 && to != 8 && to !=14)
-                        futureGames[numberStates].positions[32]=player0turn?0:1;
-                    //Knock out enemy pieces if relevant
-                    if (to > 4 && to<13) {
-                        if (futureGames[numberStates].positions[(player0turn?16:0)+to]>0) {
-                            futureGames[numberStates].positions[(player0turn?16:0)+to]=0;
-                            futureGames[numberStates].positions[(player0turn?16:0)]++;
+                        if (to!=4 && to != 8 && to !=14) {
+                            futureGames[numberStates].positions[32]=player0turn?1:0;
                         }
+                        //Knock out enemy pieces if relevant
+                        if (to > 4 && to<13) {
+                            if (futureGames[numberStates].positions[(player0turn?16:0)+to]>0) {
+                                futureGames[numberStates].positions[(player0turn?16:0)+to]=0;
+                                futureGames[numberStates].positions[(player0turn?16:0)]++;
+                            }
+                        }
+                        ++numberStates;
                     }
-                    ++numberStates;
                 }
             }
         }
     }
+
+
+    //If there are zero legal moves, insert the current game with turn flipped as only legal move
+    if (numberStates==0) {
+        futureGames[0].positions=positions;
+        futureGames[0].positions[32]=player0turn?1:0;
+        numberStates=1;
+    }
+
     return numberStates;
 }
