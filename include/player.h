@@ -20,6 +20,10 @@ class player {
 
     player(int _playerNumber ,bool _isBot);
 
+    player(int _playerNumber ,bool _isBot, std::ifstream& brainFile);
+
+    void printBrain() const;
+
     [[nodiscard]] bool isHuman() const { return !isBot; }
 
     ///Have the player choose which option they like best

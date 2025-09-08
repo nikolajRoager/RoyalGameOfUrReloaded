@@ -32,3 +32,10 @@ include_directories(include)
 add_executable(RoyalGameOfUrReloaded src/main.cpp src/board.cpp
         src/player.cpp
         src/playGame.cpp)
+
+# Copy a single file
+add_custom_command(TARGET RoyalGameOfUrReloaded POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/brain.txt
+        $<TARGET_FILE_DIR:RoyalGameOfUrReloaded>/brain.txt
+)

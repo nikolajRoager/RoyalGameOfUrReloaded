@@ -1,4 +1,5 @@
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <random>
 
@@ -14,13 +15,20 @@ int main() {
 
     std::cout << "Hello, World!, let us play a game" << std::endl;
 
+    std::ifstream brainFile ("brain.txt");
+
+    if (!brainFile.is_open()) {
+        std::cerr << "Can't open brain.txt; you should execute the program from the folder where it exists" << std::endl;
+        return 1;
+    }
 
     //The people who will play this game
-    std::array<player,2> players = {player(0,true),player(1,true)};
+    std::array<player,2> players = {player(0,false),player(1,true,brainFile)};
+
 
     int turn=0;
     const auto start = std::chrono::high_resolution_clock::now();
-    bool win = playGame(false,players,generator,turn);
+    bool win = playGame(true,players,generator,turn);
     const auto stop= std::chrono::high_resolution_clock::now();
     const auto duration = stop-start;
 
