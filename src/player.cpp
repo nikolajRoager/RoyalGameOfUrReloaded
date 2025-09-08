@@ -51,6 +51,7 @@ player::player(int _playerNumber ,bool _isBot):isBot(_isBot),playerNumber(_playe
 
 player::player(int _playerNumber ,bool _isBot, std::ifstream& brainFile):isBot(_isBot),playerNumber(_playerNumber), brain({}) {
 
+    brainFile.seekg(0,std::ios::beg);
     for (int i = 0; i < 33; ++i) {
         for (int j = 0; j < 33; ++j) {
             brainFile>>brain[i*33 + j];
@@ -137,7 +138,7 @@ int player::getValue(const board& board) const{
         }
 
         //Multiply with the corresponding element in V (from the row-vector on the left)
-        __m256i v_elem = _mm256_set1_epi32(board.positions[i]);
+        __m256i v_elem = _mm256_set1_epi32(i==33?(board.positions[i]?1:-1) :  board.positions[i]);
         //The numbers are small enough that only the low bits are needed
         vec = _mm256_mullo_epi32(vec, v_elem);
 
@@ -152,7 +153,7 @@ int player::getValue(const board& board) const{
     //Extract and sum up the result, I tried using a few hadds, but it proved slower
     int32_t res[8];
     _mm256_storeu_si256((__m256i*)res, sum);
-    return res[0] + res[1] + res[2] + res[3] + res[4] + res[5] + res[6] + res[7] + (board.positions[32]?brain[33*33-1]:0)/*Handle the final element as its own thing, it didn't fit in the registers*/;
+    return res[0] + res[1] + res[2] + res[3] + res[4] + res[5] + res[6] + res[7] + (board.positions[32]?brain[33*33-1]:(-brain[33*33-1]))/*Handle the final element as its own thing, it didn't fit in the registers*/;
 
 }
 

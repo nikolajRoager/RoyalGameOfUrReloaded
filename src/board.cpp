@@ -83,14 +83,11 @@ int board::getFutureGames(std::array<board,7>& futureGames, int roll,std::array<
             }
         }
     }
-
-
     //If there are zero legal moves, insert the current game with turn flipped as only legal move
     if (numberStates==0) {
         futureGames[0].positions=positions;
         futureGames[0].positions[32]=player0turn?1:0;
         numberStates=1;
     }
-
     return numberStates;
 }
