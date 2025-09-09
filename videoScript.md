@@ -175,8 +175,6 @@ Scene 4, `getFutureGames` live
 --
 Live section focusing on the game board
 
-
-
 The function basically loops through all the locations the first or second player could be in, and for each location, we check if we have a piece there.
 
 Then we check if we can make the move, or if we are blocked, and check if we should remove an opponent piece.
@@ -185,16 +183,90 @@ scene 5, playing the game
 --
 Live screencast, focus on `playGame.cpp`, game should already be running with player vs player game
 
-To make a functioning game, all we need is a random generator to roll the dice, and a way of displaying the game, then we can get possible future states of the game, and then we can ask the player what move they like best and just do that.
+To make a functioning game, all we need is a random generator to roll the dice, and a way of displaying the game,
+then we can get possible future states of the game, and then we can ask the player what move they like best and make that the current state.
 
-This is what I have here, this is a very simplistic console implementation of the Royal Game of Ur, as you can see the program highlights that I can move here, that is move 0, lets write ...
+This is what I have here, this is a very simplistic console implementation of the Royal Game of Ur,
 
-now I can make move 0 to here, because I rolled ...
+Now it is player 0 turn, the first player, I rolled ..., so I can move here
+as you can see the program highlights that I can move here, there is a zero because that is move number 0, the only move
+lets write 0.
 
-Now it is player 0 turn, the first player, and I can make two moves, I can move here or here, let us say I move here, so 1.
+Now it is player 1 turn, the second player, you rolled ..., so we can move here, move 0
 
-Yeah, as I said, it is a really simple game to make, but I want to play against an AI
+Now it is my turn again, I can make two moves, move 0 here, or move 1 here, ... there we go, your turn.
 
+And... well, this is a perfectly functioning game now. As I said, it is a really simple game to make, but I want an AI to play against
 
 scene 6, AI decisions
 --
+*Live scene, focusing on the game board with 3 pieces on the board (player 1 is two behind player 0), with value matrix as a prop*
+
+One way for the AI to decide what move to make, is to assign a numerical value to each possible future, and pick the one with the highest value.
+
+So we need some kind of getValue function, which takes a board as input, and returns a number.
+
+One way to do that is to just have a value for each position on the board, say 4 points for standing here, 8 for standing here, and 20 for each finished piece
+
+That certainly works, but I want my AI to take into consideration all the other pieces on the board, and the way I will do this is using a value Matrix like this.
+
+This is a 33 by 33 matrix, a table of numbers, which tells me how many points each pair of pieces is worth.
+
+For example, I am here on position 7, and you are at position 21, remember that is how I represent the state of the board it is 21 if you are there, 5 if I am there
+Then the value of this is row 21, column 7, which is -2, because it is bad for me that you are here, two is after all the most likely roll, so you are likely to take me
+
+When it comes to these two pieces, we check position 3 and position 21, that is +2, because I might take you, so we add that to the value
+
+Oh by the way, the way I have set it up in the code, you always look in the lower left of, so we check row 21 column 7, not column 21 row 7, so all these numbers are all 0
+
+I also check each piece against itself, so in this case we need to check 21 by 21, 3 by 3 and 7 by 7. and the final row, row 33 is for whose turn it is,
+
+You might recognize what we are doing here as a vector matrix vector multiplication, and this is basically reduced the AI decisionmaking process to.
+
+
+scene 7, optimizations and SIMD
+--
+*Presentation*
+
+    int32_t getValue(const board& board) {
+        int32_t sum=0;
+        for (int i = 0; i < 33; ++i)
+            for (int j = i; j < 33; ++j) {
+                sum += brain[i+j*33]*board.positions[j]*board.positions[i];
+            }
+        return sum;
+    }
+
+It is fairly easy to make a simple getValue function, like this, and this gives a functional AI opponent... well at least if we have a good brain matrix, 
+
+The problem is that to get a good brain matrix, we need to train the bot by having bots with different brains play against each other millions of times
+So it is really important that the game can run quickly, and this getValue function is very slow
+
+On average, this takes something like 2 microseconds to run, and that makes it the slowest function in the game by an order of magnitude.
+And we need to run it for every possible move every turn.
+
+So how can we do better? Well, there are a lot of ways to improve this, for example you can check if the vector or matrix elements are zero
+and skip all multiplications which are obviously going to give 0
+But to really improve this, we need to use dark magic, also known as low-level C.
+
+    Show list of numbers
+
+Let us take a step back and ask ourself, what happens if I add every number in this list, to the numbers in that list?
+
+    Show numbers getting added
+
+Well, our C or C++ code gets compiled to an assembly instruction which adds the first numbers, then the next numbers, then the next and so on, same deal if we multiplied or compared
+    
+    show lists getting added
+
+But we don't need the calculations to happen one after another, it would really be better if there was a single instruction: to just add this entire list to that entire list.
+And it turns out there is, and that is called SIMD: Single instruction multiple data
+On modern CPUs, there are a few magic registers, which can hold multiple numbers, and where a single instruction can effect the entire register
+
+On my CPU, I have the AVX2 extension, that means I have 16 YMM registers, which can hold 256 bits each, so I can add, multiply or compare 16 16 bit numbers at the same time
+I can explicitly tell the C or C++ compiler to use the YMM registers, and AVX2 instructions using the intrinsic assembly directly in the code
+
+    Show code
+
+Rewriting the getValue function to use AVX2 is not pretty, this is what it looks like now. But it is much much faster, now it takes 170 nanoseconds on average, which is much better,
+and now a full game, with two bots playing against each other, takes roughly 100 microseconds, which is fast enough 
